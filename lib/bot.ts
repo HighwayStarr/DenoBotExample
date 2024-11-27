@@ -1,7 +1,7 @@
 import { Bot } from "https://deno.land/x/telegraf/mod.ts";  
 
 // Замените <ваш_токен> на токен вашего бота  
-const bot = new Bot("<ваш_токен>");  
+const bot = new Bot("8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU>");  
 
 bot.start((ctx) => {  
   ctx.reply("Привет! Я ваш новый бот. Как я могу помочь?");  
