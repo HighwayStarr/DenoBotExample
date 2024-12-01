@@ -8,7 +8,7 @@ export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejT
 // Обработайте команду /start.
 bot.command(    
     "start",
-    (ctx) => ctx.reply("ку полина лузарева",{ reply_markup: keyboard }),
+    (ctx) => ctx.reply("ку бля пальцева",{ reply_markup: keyboard }),
 );
 
 // Обработайте другие сообщения.
@@ -16,11 +16,11 @@ bot.on("message", (ctx) => ctx.reply("и тебе" + ctx.message.text,));
 
 // Клавиатура будет отправлять в бота команду /about
 const keyboard = new InlineKeyboard()
-    .text("нажми если любиш егора", "/about");
+    .text("нажми если кирилл клименко туп", "/about");
 
 bot.callbackQuery("/about", async (ctx) => {    
     await ctx.answerCallbackQuery(); // Уведомляем Telegram, что мы обработали запрос
-    await ctx.reply("ты шо туп");});
+    await ctx.reply("мая");});
 
 // Теперь, когда вы указали, как обрабатывать сообщения, вы можете запустить своего бота.
 // Он подключится к серверам Telegram и будет ждать сообщений.// Запуск бота производится из файла main.ts
