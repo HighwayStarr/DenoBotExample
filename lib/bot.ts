@@ -1,13 +1,18 @@
-import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts"; 
+import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";  
 
 // Создайте экземпляр класса Bot и передайте ему токен вашего бота.  
-export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU");  
+const bot = new Bot(Deno.env.get("BOT_TOKEN") || "ваш_токен_бота");  
 
 // Состояние пользователя  
 const userState: { [userId: string]: { interests?: string; district?: string; coffeePlace?: string; time?: string } } = {};  
 
+// Клавиатура для команд  
+const keyboard = new InlineKeyboard()  
+    .text("Обо мне", "/about")  
+    .text("Начать знакомство", "/start_match");  
+
 // Обработка команды /start  
-bot.command("/start", (ctx) => {  
+bot.command("start", (ctx) => {  
     ctx.reply("Добро пожаловать! Давайте начнем знакомство! Для этого мне нужно узнать о вас кое-что.", { reply_markup: keyboard });  
 });  
 
@@ -26,7 +31,7 @@ bot.callbackQuery("/start_match", async (ctx) => {
     await ctx.reply("Какие у вас интересы? Напишите их через запятую.");  
 });  
 
-// Сбор интересов  
+// Сбор информации  
 bot.on("message", async (ctx) => {  
     const userId = ctx.from.id.toString();  
 
@@ -53,4 +58,4 @@ bot.on("message", async (ctx) => {
 });  
 
 // Запуск бота  
-await bot.start();
+await bot.start();  
