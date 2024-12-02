@@ -1,15 +1,10 @@
-import { createClient } from "https://deno.land/x/supabase@v1.0.0/mod.ts";  
+import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts"; 
 
 // Создайте экземпляр класса Bot и передайте ему токен вашего бота.  
-export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");  
+export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU");  
 
 // Состояние пользователя  
 const userState: { [userId: string]: { interests?: string; district?: string; coffeePlace?: string; time?: string } } = {};  
-
-// Клавиатура для команды /about  
-const keyboard = new InlineKeyboard()  
-    .text("Обо мне", "/about")  
-    .text("Начать знакомство", "/start_match");  
 
 // Обработка команды /start  
 bot.command("start", (ctx) => {  
