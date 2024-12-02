@@ -7,7 +7,7 @@ export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejT
 const userState: { [userId: string]: { interests?: string; district?: string; coffeePlace?: string; time?: string } } = {};  
 
 // Обработка команды /start  
-bot.command("start", (ctx) => {  
+bot.command("/start", (ctx) => {  
     ctx.reply("Добро пожаловать! Давайте начнем знакомство! Для этого мне нужно узнать о вас кое-что.", { reply_markup: keyboard });  
 });  
 
