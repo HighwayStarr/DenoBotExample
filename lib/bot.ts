@@ -7,20 +7,13 @@ export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejT
 const userState: { [userId: string]: { interests?: string; district?: string; coffeePlace?: string; time?: string } } = {};  
 
 // Клавиатура для команд  
-const keyboard = new InlineKeyboard()  
-    .text("Обо мне", "/about")  
+const keyboard = new InlineKeyboard()   
     .text("Начать знакомство", "/start_match");  
 
 // Обработка команды /start  
 bot.command("start", (ctx) => {  
     ctx.reply("Добро пожаловать! Давайте начнем знакомство. Нажмите 'Начать знакомство', чтобы продолжить.", { reply_markup: keyboard });  
-});  
-
-// Обработка команды /about  
-bot.callbackQuery("/about", async (ctx) => {  
-    await ctx.answerCallbackQuery();  
-    await ctx.reply("Я бот, созданный для помощи в поиске интересных людей!");  
-});  
+});    
 
 // Обработка команды /start_match  
 bot.callbackQuery("/start_match", async (ctx) => {  
