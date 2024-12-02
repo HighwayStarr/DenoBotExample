@@ -1,8 +1,24 @@
 import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
+import { DB } from "https://deno.land/x/sqlite/mod.ts"; // Импортируем библиотеку SQLite  
 
 // Создайте экземпляр класса Bot и передайте ему токен вашего бота.
 // Токен и адрес бэкенда мы спрячем, чтобы никто не смог воспользоваться нашим ботом или взломать нас. Получим их из файла .env (или из настроек в Deno Deploy)
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU"); // export нужен, чтобы воспользоваться ботом в другом файле
+
+// Подключение к базе данных  
+const db = new DB("users.db");  
+
+// Создаем таблицу пользователей, если она не существует  
+db.execute(`  
+    CREATE TABLE IF NOT EXISTS users (  
+        id INTEGER PRIMARY KEY AUTOINCREMENT,  
+        user_id TEXT NOT NULL,  
+        interests TEXT,  
+        district TEXT,  
+        coffee_place TEXT,  
+        time TEXT  
+    )  
+`);  
 
 // Состояние пользователя  
 const userState: { [userId: string]: { interests?: string; district?: string; coffeePlace?: string; time?: string } } = {};  
@@ -48,7 +64,10 @@ bot.on("message", async (ctx) => {
     } else if (userState[userId]?.time === undefined) {  
         userState[userId].time = ctx.message.text;  
         
-        // Здесь можно загрузить данные в базу данных  
+        // Сохранение данных в базу данных  
+        await saveUserData(userId, userState[userId]);  
+
+        // Подтверждение и отображение данных  
         await ctx.reply(`Спасибо! Вот ваши данные:\n- Интересы: ${userState[userId].interests}\n- Район: ${userState[userId].district}\n- Кофейня: ${userState[userId].coffeePlace}\n- Время: ${userState[userId].time}`);  
         
         // Очистка состояния после завершения  
@@ -58,5 +77,26 @@ bot.on("message", async (ctx) => {
     }  
 });  
 
+// Функция для сохранения данных пользователя в базу данных  
+async function saveUserData(userId: string, userData: { interests?: string; district?: string; coffeePlace?: string; time?: string }) {  
+    // Вставляем данные в таблицу  
+    db.execute(`  
+        INSERT INTO users (user_id, interests, district, coffee_place, time)   
+        VALUES (?, ?, ?, ?, ?)`,   
+        [userId, userData.interests, userData.district, userData.coffeePlace, userData.time]  
+    );  
+}  
+
+bot.command("show_users", async (ctx) => {  
+    const users = db.query("SELECT * FROM users"); // Получаю всех пользователей  
+
+    let response = "Пользователи:\n";  
+    for (const user of users) {  
+        response += `ID: ${user[0]}, User ID: ${user[1]}, Интересы: ${user[2]}, Район: ${user[3]}, Кофейня: ${user[4]}, Время: ${user[5]}\n`;  
+    }  
+
+    await ctx.reply(response);  
+});
+
 // Запуск бота  
-await bot.start(); 
+await bot.start();  
