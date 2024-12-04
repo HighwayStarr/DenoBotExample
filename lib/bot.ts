@@ -12,7 +12,7 @@ const keyboard = new InlineKeyboard()
 
 // Обработка команды /start  
 bot.command("start", (ctx) => {  
-    ctx.reply("Добро пожаловать!, { reply_markup: keyboard });  
+    ctx.reply("Добро пожаловать! { reply_markup: keyboard });  
 });  
 
 // Список команд  
