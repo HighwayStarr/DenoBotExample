@@ -1,16 +1,16 @@
-import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";  
+import { Bot } from "https://deno.land/x/grammy@v1.32.0/mod.ts";  
 
 // Создайте экземпляр класса `Bot` и передайте ему токен вашего бота.  
-export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU"); // Убедитесь, что токен установлен  
+export const bot = new Bot(Deno.env.get("8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU") || ""); // Убедитесь, что токен установлен  
 
 // Состояние пользователя  
-const userState: { [userId: string]: { hobby?: string; place?: string; cafe?: string; time?: string; waitingForResponse?: boolean; otherUserId?: string } } = {};  
+const userState: { [userId: string]: { hobby: string; place: string; cafe: string; time: string } } = {};  
 const users: { [userId: string]: { hobby: string; place: string; cafe: string; time: string } } = {}; // Хранение всех зарегистрированных пользователей  
-
+ 
 bot.command("start", (ctx) => {  
     ctx.reply("Добро пожаловать! Чтобы начать регистрацию, введите /register.");  
 });  
-
+ 
 bot.command("register", (ctx) => {  
     const userId = ctx.from.id.toString();  
     userState[userId] = {};  
@@ -66,20 +66,14 @@ async function findMatches(userId: string) {
                             user.time === otherUser.time;  
 
             if (isMatch) {  
-                // Уведомляем о совпадении с кнопками  
-                const inlineKeyboard = new InlineKeyboard().inline([  
-                    [{ text: "Да", callback_data: `meet_yes:${otherUserId}` }],  
-                    [{ text: "Нет", callback_data: `meet_no:${otherUserId}` }]  
-                ]);  
-
+                // Уведомляем о совпадении  
                 await bot.api.sendMessage(otherUserId,  
                     `У вас совпадение с пользователем ${userId}!\n` +  
                     `- Хобби: ${user.hobby}\n` +  
                     `- Район: ${user.place}\n` +  
                     `- Кафе: ${user.cafe}\n` +  
                     `- Время: ${user.time}\n\n` +  
-                    `Хотите встретиться? Выберите вариант ниже:`,  
-                    { reply_markup: inlineKeyboard }  
+                    `Хотите встретиться? Ответьте "Да" или "Нет".`  
                 );  
 
                 // Устанавливаем состояние ожидания ответа  
@@ -89,30 +83,29 @@ async function findMatches(userId: string) {
     }  
 }  
 
-// Обработка нажатий на кнопки  
-bot.on("callback_query:data", async (ctx) => {  
-    const data = ctx.callbackQuery.data;  
-    const [action, otherUserId] = data.split(":");  
+// Обработка текстовых сообщений  
+bot.on("message:text", async (ctx) => {  
     const userId = ctx.from.id.toString();  
+    const state = userState[userId];  
 
-    if (action === "meet_yes" || action === "meet_no") {  
-        if (action === "meet_yes") {  
+    // Проверяем, ожидает ли бот ответа от этого пользователя  
+    if (state?.waitingForResponse) {  
+        const otherUserId = state.otherUserId;  
+
+        if (ctx.message.text.toLowerCase() === "да") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу! Договоритесь о времени и месте.`);  
             await ctx.reply("Отлично! Договоритесь о времени и месте с другим пользователем.");  
-        } else {  
+        } else if (ctx.message.text.toLowerCase() === "нет") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
             await ctx.reply("Хорошо, если вы передумаете, просто дайте знать!");  
-        }  
-
-        // Удаляем состояние ожидания ответа  
-        delete userState[otherUserId];  
+        } else {  
+            await ctx.reply('Пожалуйста, ответьте "Да" или "Нет".');  
+        }
+    } else {  
+        // Обработка других сообщений, если не ожидается ответа  
+        ctx.reply("Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.");  
     }  
-});  
-
-// Обработка других сообщений  
-bot.on("message:text", (ctx) => {  
-    ctx.reply("Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.");  
-});  
+})
 
 // Запуск бота  
 await bot.start();
