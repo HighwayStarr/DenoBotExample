@@ -80,7 +80,7 @@ async function findMatches(userId: string) {
 
                 // Устанавливаем состояние ожидания ответа  
                 userState[otherUserId] = { waitingForResponse: true, otherUserId: userId };  
-                const userState[userId].agreement = ctx.message.text;
+                const userState[userId].agreement: string = ctx.message.text;
             }  
         }  
     }  
