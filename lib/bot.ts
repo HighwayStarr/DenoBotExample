@@ -104,4 +104,11 @@ bot.on("message:text", async (ctx) => {
             await ctx.reply('Пожалуйста, ответьте "Да" или "Нет".');  
         }
 
-    
+
+// Обработка других сообщений  
+bot.on("message", (ctx) => {  
+    ctx.reply("Простите, я не знаю команду: " + ctx.message.text + "!");  
+});  
+
+// Запуск бота  
+await bot.start();
