@@ -94,18 +94,16 @@ bot.on("message:text", async (ctx) => {
     if (state?.waitingForResponse) {  
         const otherUserId = state.otherUserId;  
 
-        if (ctx.message.text.toLowerCase() === "да") {  
+        if (ctx.message.text.toLowerCase() === "Да") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу! Договоритесь о времени и месте.`);  
             await ctx.reply("Отлично! Договоритесь о времени и месте с другим пользователем.");  
-        } else if (ctx.message.text.toLowerCase() === "нет") {  
+        } else if (ctx.message.text.toLowerCase() === "Нет") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
             await ctx.reply("Хорошо, если вы передумаете, просто дайте знать!");  
         } else {  
             await ctx.reply('Пожалуйста, ответьте "Да" или "Нет".');  
         }  
-
-        // Сбрасываем состояние после получения ответа  
-        delete userState[userId];  
+ 
     } else {  
         // Обработка других сообщений, если не ожидается ответа  
         ctx.reply("Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.");  
