@@ -1,12 +1,12 @@
 import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";  
 
 // Создайте экземпляр класса `Bot` и передайте ему токен вашего бота.  
-export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU"); // Убедитесь, что токен установлен  
+export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU"); // Убедитесь, что токен установлен   
 
 // Состояние пользователя  
-const userState: { [userId: string]: { hobby: string; place: string; cafe: string; time: string } } = {};  
+const userState: { [userId: string]: { hobby?: string; place?: string; cafe?: string; time?: string } } = {};  
 const users: { [userId: string]: { hobby: string; place: string; cafe: string; time: string } } = {}; // Хранение всех зарегистрированных пользователей  
-const matches: { [userId: string]: string | null } = {}; // Хранение ID найденного совпадения  
+const matches: { [userId: string]: string | null } = {}; // Хранение ID найденного совпадения   
 
 // Обработка команды /start  
 bot.command("start", (ctx) => {  
@@ -23,6 +23,11 @@ bot.command("register", (ctx) => {
 // Сбор информации от пользователя  
 bot.on("message", async (ctx) => {  
     const userId = ctx.from.id.toString();  
+    
+    // Проверка, существует ли состояние пользователя, если нет, инициализируем его  
+    if (!userState[userId]) {  
+        userState[userId] = {};  
+    }  
 
     if (userState[userId]?.hobby === undefined) {  
         userState[userId].hobby = ctx.message.text;  
@@ -37,11 +42,11 @@ bot.on("message", async (ctx) => {
         userState[userId].time = ctx.message.text;  
 
         // Сохраняем информацию о пользователе  
-        users[userId] = {   
-            hobby: userState[userId].hobby,   
-            place: userState[userId].place,   
-            cafe: userState[userId].cafe,   
-            time: userState[userId].time   
+        users[userId] = {  
+            hobby: userState[userId].hobby,  
+            place: userState[userId].place,  
+            cafe: userState[userId].cafe,  
+            time: userState[userId].time  
         };  
 
         // Подтверждение данных  
@@ -69,12 +74,12 @@ async function findMatches(userId: string) {
                             user.time === otherUser.time;  
 
             if (isMatch) {  
-                await bot.api.sendMessage(otherUserId,   
-                    `У вас совпадение с пользователем ${userId}!\n` +   
-                    `- Хобби: ${user.hobby}\n` +   
-                    `- Район: ${user.place}\n` +   
-                    `- Кафе: ${user.cafe}\n` +   
-                    `- Время: ${user.time}\n\n` +   
+                await bot.api.sendMessage(otherUserId,  
+                    `У вас совпадение с пользователем ${userId}!\n` +  
+                    `- Хобби: ${user.hobby}\n` +  
+                    `- Район: ${user.place}\n` +  
+                    `- Кафе: ${user.cafe}\n` +  
+                    `- Время: ${user.time}\n\n` +  
                     `Хотите встретиться? Нажмите на кнопку ниже.`,  
                     {  
                         reply_markup: new InlineKeyboard().inline(  
