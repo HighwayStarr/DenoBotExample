@@ -1,7 +1,7 @@
 import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";   
 
 // Создайте экземпляр класса `Bot` и передайте ему токен вашего бота.   
-export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU"); // Убедитесь, что токен установлен   
+export const bot = new Bot(Deno.env.get("8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU") || "ваш_токен"); // Убедитесь, что токен установлен   
 
 // Состояние пользователя   
 const userState: { [userId: string]: { hobby?: string; place?: string; cafe?: string; time?: string } } = {};   
@@ -74,8 +74,24 @@ async function findMatches(userId: string) {
                             user.time === otherUser.time;   
 
             if (isMatch) {   
+                // Отправляем сообщение обоим пользователям о совпадении  
+                await bot.api.sendMessage(userId,   
+                    `У вас найдены совпадения с пользователем ${otherUserId}!\n` +   
+                    `- Хобби: ${otherUser.hobby}\n` +   
+                    `- Район: ${otherUser.place}\n` +   
+                    `- Кафе: ${otherUser.cafe}\n` +   
+                    `- Время: ${otherUser.time}\n\n` +   
+                    `Хотите встретиться? Нажмите на кнопку ниже.`,   
+                    { reply_markup: new InlineKeyboard().inline(   
+                        [   
+                            [{ text: "Да", callback_data: `meet_yes:${otherUserId}` }],   
+                            [{ text: "Нет", callback_data: `meet_no:${otherUserId}` }]   
+                        ]   
+                    ) }   
+                );  
+
                 await bot.api.sendMessage(otherUserId,   
-                    `У вас совпадение с пользователем ${userId}!\n` +   
+                    `У вас найдены совпадения с пользователем ${userId}!\n` +   
                     `- Хобби: ${user.hobby}\n` +   
                     `- Район: ${user.place}\n` +   
                     `- Кафе: ${user.cafe}\n` +   
@@ -87,9 +103,11 @@ async function findMatches(userId: string) {
                             [{ text: "Нет", callback_data: `meet_no:${userId}` }]   
                         ]   
                     ) }   
-                );   
+                );  
+
                 // Сохраняем ID совпадения   
                 matches[otherUserId] = userId;   
+                matches[userId] = otherUserId;   
             }   
         }   
     }   
