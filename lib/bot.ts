@@ -8,12 +8,11 @@ const userState: { [userId: string]: { hobby?: string; place?: string; cafe?: st
 
 // Клавиатура для команд  
 const keyboard = new InlineKeyboard()  
-    .text("Обо мне", "/about")  
     .text("Начать регистрацию", "/register");  
 
 // Обработка команды /start  
 bot.command("start", (ctx) => {  
-    ctx.reply("Добро пожаловать! Вывести список доступных команд - /help.", { reply_markup: keyboard });  
+    ctx.reply("Добро пожаловать!, { reply_markup: keyboard });  
 });  
 
 // Список команд  
@@ -34,10 +33,10 @@ bot.on("message", async (ctx) => {
 
     if (userState[userId]?.hobby === undefined) {  
         userState[userId].hobby = ctx.message.text;  
-        await ctx.reply("Отлично! В каком районе вы находитесь? Напишите его название.");  
+        await ctx.reply("В каком районе вам было бы удобно встречаться?");  
     } else if (userState[userId]?.place === undefined) {  
         userState[userId].place = ctx.message.text;  
-        await ctx.reply("Какую кафешку вы предпочитаете? Напишите её название.");  
+        await ctx.reply("Какую кофейню вы предпочитаете? Напишите её название.");  
     } else if (userState[userId]?.cafe === undefined) {  
         userState[userId].cafe = ctx.message.text;  
         await ctx.reply("Во сколько вам удобнее встречаться? Напишите время.");  
@@ -54,12 +53,5 @@ bot.on("message", async (ctx) => {
     }  
 });  
 
-// Обработка других сообщений  
-bot.on("message", (ctx) => {  
-    ctx.reply("Простите, я не знаю команду: " + ctx.message.text + "!");  
-});  
-
 // Запуск бота  
 await bot.start();
-// Обработайте другие сообщения.
-bot.on("message", (ctx) => ctx.reply("Простите я не знаю команду: " + ctx.message.text + " !",));
