@@ -98,7 +98,7 @@ bot.on("message:text", async (ctx) => {
         if (userState[userId].agreement.toLowerCase() === "да") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу! Договоритесь о времени и месте.`);  
             await ctx.reply("Отлично! Договоритесь о времени и месте с другим пользователем.");  
-        } else if (const userState[userId].agreement.toLowerCase() === "нет") {  
+        } else if (userState[userId].agreement.toLowerCase() === "нет") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
             await ctx.reply("Хорошо, если вы передумаете, просто дайте знать!");  
         } else {  
