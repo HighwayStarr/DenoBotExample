@@ -80,6 +80,7 @@ async function findMatches(userId: string) {
 
                 // Устанавливаем состояние ожидания ответа  
                 userState[otherUserId] = { waitingForResponse: true, otherUserId: userId };  
+                const userState[userId].agreement = ctx.message.text;
             }  
         }  
     }  
@@ -94,10 +95,10 @@ bot.on("message:text", async (ctx) => {
     if (state?.waitingForResponse) {  
         const otherUserId = state.otherUserId;  
 
-        if (ctx.message.text.toLowerCase() === "да") {  
+        if (userState[userId].agreement.toLowerCase() === "да") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу! Договоритесь о времени и месте.`);  
             await ctx.reply("Отлично! Договоритесь о времени и месте с другим пользователем.");  
-        } else if (ctx.message.text.toLowerCase() === "нет") {  
+        } else if (const userState[userId].agreement.toLowerCase() === "нет") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
             await ctx.reply("Хорошо, если вы передумаете, просто дайте знать!");  
         } else {  
