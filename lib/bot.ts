@@ -1,23 +1,14 @@
 import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";  
 
 // Создайте экземпляр класса `Bot` и передайте ему токен вашего бота.  
-export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU"); // Убедитесь, что токен установлен  
+export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "ваш_токен"); // Убедитесь, что токен установлен  
 
 // Состояние пользователя  
 const userState: { [userId: string]: { hobby?: string; place?: string; cafe?: string; time?: string } } = {};  
 
-// Клавиатура для команд  
-const keyboard = new InlineKeyboard()  
-    .text("Начать регистрацию", "/register");  
-
 // Обработка команды /start  
 bot.command("start", (ctx) => {  
-    ctx.reply("Добро пожаловать! { reply_markup: keyboard });  
-});  
-
-// Список команд  
-bot.command("help", (ctx) => {  
-    ctx.reply("/register - начать регистрацию, /about - информация о боте");  
+    ctx.reply("Добро пожаловать! Чтобы начать регистрацию, введите /register.");  
 });  
 
 // Обработка команды /register  
@@ -53,5 +44,10 @@ bot.on("message", async (ctx) => {
     }  
 });  
 
+// Обработка других сообщений  
+bot.on("message", (ctx) => {  
+    ctx.reply("Простите, я не знаю команду: " + ctx.message.text + "!");  
+});  
+
 // Запуск бота  
-await bot.start();
+await bot.start();  
