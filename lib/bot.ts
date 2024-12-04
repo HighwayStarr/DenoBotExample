@@ -7,87 +7,42 @@ export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejT
 // Теперь вы можете зарегистрировать слушателей на объекте вашего бота `bot`.
 // grammY будет вызывать слушателей, когда пользователи будут отправлять сообщения вашему боту.
 
-// Обработайте команду /start.
-bot.command(
-    "start",
-    (ctx) => ctx.reply("Добро пожаловать. Запущен и работает! Вывести список доступных комманд - /help.",{ reply_markup: keyboard }),
-);
+bot.command("start", (ctx) => {  
+    ctx.reply("Добро пожаловать! Нажмите 'Начать знакомство', чтобы продолжить.", { reply_markup: keyboard });  
+});    
 
-// Клавиатура будет отправлять в бота команду /about
-const keyboard = new InlineKeyboard()
-    .text("Обо мне", "/about");
+// Обработка команды /start_match  
+bot.callbackQuery("/start_match", async (ctx) => {  
+    await ctx.answerCallbackQuery();  
+    const userId = ctx.from.id.toString();  
 
-bot.callbackQuery("/about", async (ctx) => {
-    await ctx.answerCallbackQuery(); // Уведомляем Telegram, что мы обработали запрос
-    await ctx.reply("Я бот? Я бот... Я Бот!");
-});
+    userState[userId] = {}; // Инициализируем состояние пользователя  
+    await ctx.reply("Какие у вас интересы? Напишите их через запятую.");  
+});  
 
-// список комманд
+// Сбор информации от пользователя  
+bot.on("message", async (ctx) => {  
+    const userId = ctx.from.id.toString();  
 
-bot.command(
-    "help",
-    (ctx) => ctx.reply("/hobby - добавить хобби, /place - добавить удобный район, /fcafe - добавить любимую кафешку, /time - добавить удобное для встречи время"),
-);
+    if (userState[userId]?.interests === undefined) {  
+        userState[userId].interests = ctx.message.text;  
+        await ctx.reply("Отлично! Напишите название района, в котором вам будет удобно встречаться.");  
+    } else if (userState[userId]?.district === undefined) {  
+        userState[userId].district = ctx.message.text;  
+        await ctx.reply("Какую кофейню вы предпочитаете? Напишите её название.");  
+    } else if (userState[userId]?.coffeePlace === undefined) {  
+        userState[userId].coffeePlace = ctx.message.text;  
+        await ctx.reply("Во сколько вам удобнее встречаться?");  
+    } else if (userState[userId]?.time === undefined) {  
+        userState[userId].time = ctx.message.text;  
 
-// добаление топиков
+        // Подтверждение данных  
+        await ctx.reply(`Спасибо! Вот ваши данные:\n- Интересы: ${userState[userId].interests}\n- Район: ${userState[userId].district}\n- Кофейня: ${userState[userId].coffeePlace}\n- Время: ${userState[userId].time}`);  
 
-bot.command(
-    "hobby",
-    (ctx) => ctx.reply("Заполните информацию о ваших хобби!",{ reply_markup: keyboard_hobby }),
-);
+        // Очистка состояния после завершения  
+        delete userState[userId];  
+    } else {  
+        await ctx.reply("Я не знаю, как на это ответить, попробуйте снова.");  
+    }  
+}); 
 
-const keyboard_hobby = new InlineKeyboard()
-    .text("Добавить моё хобби", "/hobby");
-
-bot.callbackQuery("/hobby", async (ctx) => {
-    await ctx.answerCallbackQuery(); // Уведомляем Telegram, что мы обработали запрос
-    await ctx.reply("Запомнил ваше хобби!");
-});
-
-// добавление района
-
-bot.command(
-    "place",
-    (ctx) => ctx.reply("Заполните информацию об удобном районе!",{ reply_markup: keyboard_place }),
-);
-
-const keyboard_place = new InlineKeyboard()
-    .text("Добавить удобный для меня район", "/place");
-
-bot.callbackQuery("/place", async (ctx) => {
-    await ctx.answerCallbackQuery(); // Уведомляем Telegram, что мы обработали запрос
-    await ctx.reply("Запомнил удобный для вас район!");
-});
-
-// добавление любимого кафе
-
-bot.command(
-    "fcafe",
-    (ctx) => ctx.reply("Заполните информацию о вашем любимом кафе!",{ reply_markup: keyboard_fcafe }),
-);
-
-const keyboard_fcafe = new InlineKeyboard()
-    .text("Добавить моё любимое кафе", "/fcafe");
-
-bot.callbackQuery("/fcafe", async (ctx) => {
-    await ctx.answerCallbackQuery(); // Уведомляем Telegram, что мы обработали запрос
-    await ctx.reply("Запомнил ваше любимое кафе!");
-});
-
-// добавление удобного времени
-
-bot.command(
-    "time",
-    (ctx) => ctx.reply("Заполните информацию об удобном для вас времени!",{ reply_markup: keyboard_time }),
-);
-
-const keyboard_time = new InlineKeyboard()
-    .text("Добавить удобное для меня время", "/time");
-
-bot.callbackQuery("/time", async (ctx) => {
-    await ctx.answerCallbackQuery(); // Уведомляем Telegram, что мы обработали запрос
-    await ctx.reply("Запомнил удобное для вас время!");
-});
-
-// Обработайте другие сообщения.
-bot.on("message", (ctx) => ctx.reply("Простите я не знаю команду: " + ctx.message.text + " !",));
