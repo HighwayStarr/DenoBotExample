@@ -1,7 +1,7 @@
 import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";  
 
 // Создайте экземпляр класса `Bot` и передайте ему токен вашего бота.  
-export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "ваш_токен"); // Убедитесь, что токен установлен  
+export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU"); // Убедитесь, что токен установлен  
 
 // Состояние пользователя  
 const userState: { [userId: string]: { hobby: string; place: string; cafe: string; time: string } } = {};  
