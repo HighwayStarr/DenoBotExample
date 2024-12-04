@@ -1,7 +1,8 @@
-import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";  
+import { Bot } from "https://deno.land/x/grammy@v1.32.0/mod.ts";  
 
 // Создайте экземпляр класса `Bot` и передайте ему токен вашего бота.  
-export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU"); // Убедитесь, что токен установлен  
+export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU
+                           "); // Убедитесь, что токен установлен  
 
 // Состояние пользователя  
 const userState: { [userId: string]: { hobby: string; place: string; cafe: string; time: string } } = {};  
@@ -94,27 +95,14 @@ bot.on("message:text", async (ctx) => {
     if (state?.waitingForResponse) {  
         const otherUserId = state.otherUserId;  
 
-        if (ctx.message.text.toLowerCase() === "Да") {  
+        if (ctx.message.text.toLowerCase() === "да") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу! Договоритесь о времени и месте.`);  
             await ctx.reply("Отлично! Договоритесь о времени и месте с другим пользователем.");  
-        } else if (ctx.message.text.toLowerCase() === "Нет") {  
+        } else if (ctx.message.text.toLowerCase() === "нет") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
             await ctx.reply("Хорошо, если вы передумаете, просто дайте знать!");  
         } else {  
             await ctx.reply('Пожалуйста, ответьте "Да" или "Нет".');  
-        }  
- 
-    } else {  
-        // Обработка других сообщений, если не ожидается ответа  
-        ctx.reply("Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.");  
-    }  
-});  
-   
+        }
 
-// Обработка других сообщений  
-bot.on("message", (ctx) => {  
-    ctx.reply("Простите, я не знаю команду: " + ctx.message.text + "!");  
-});  
-
-// Запуск бота  
-await bot.start();
+    
