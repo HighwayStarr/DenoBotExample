@@ -68,22 +68,49 @@ async function findMatches(userId: string) {
                             user.time === otherUser.time;  
 
             if (isMatch) {  
-                await bot.api.sendMessage(otherUserId, `У вас совпадение с пользователем ${userId}!\n- Хобби: ${user.hobby}\n- Район: ${user.place}\n- Кафе: ${user.cafe}\n- Время: ${user.time}\n\nХотите встретиться? Ответьте "Да" или "Нет".`);  
+                // Уведомляем о совпадении  
+                await bot.api.sendMessage(otherUserId,  
+                    `У вас совпадение с пользователем ${userId}!\n` +  
+                    `- Хобби: ${user.hobby}\n` +  
+                    `- Район: ${user.place}\n` +  
+                    `- Кафе: ${user.cafe}\n` +  
+                    `- Время: ${user.time}\n\n` +  
+                    `Хотите встретиться? Ответьте "Да" или "Нет".`  
+                );  
 
-                // Слушаем ответ пользователя  
-                bot.on("message", async (ctx) => {  
-                    if (ctx.from.id.toString() === otherUserId) {  
-                        if (ctx.message.text.toLowerCase() === "да" || ctx.message.text.toLowerCase() === "Да") {  
-                            await bot.api.sendMessage(userId, `Пользователь ${otherUserId} согласен на встречу! Договоритесь о времени и месте.`);  
-                        } else {  
-                            await bot.api.sendMessage(userId, `Пользователь ${otherUserId} не заинтересован в встрече.`);  
-                        }  
-                    }  
-                });  
+                // Устанавливаем состояние ожидания ответа  
+                userState[otherUserId] = { waitingForResponse: true, otherUserId: userId };  
             }  
         }  
     }  
 }  
+
+// Обработка текстовых сообщений  
+bot.on("message:text", async (ctx) => {  
+    const userId = ctx.from.id.toString();  
+    const state = userState[userId];  
+
+    // Проверяем, ожидает ли бот ответа от этого пользователя  
+    if (state?.waitingForResponse) {  
+        const otherUserId = state.otherUserId;  
+
+        if (ctx.message.text.toLowerCase() === "да") {  
+            await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу! Договоритесь о времени и месте.`);  
+            await ctx.reply("Отлично! Договоритесь о времени и месте с другим пользователем.");  
+        } else if (ctx.message.text.toLowerCase() === "нет") {  
+            await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
+            await ctx.reply("Хорошо, если вы передумаете, просто дайте знать!");  
+        } else {  
+            await ctx.reply('Пожалуйста, ответьте "Да" или "Нет".');  
+        }  
+
+        // Сбрасываем состояние после получения ответа  
+        delete userState[userId];  
+    } else {  
+        // Обработка других сообщений, если не ожидается ответа  
+        ctx.reply("Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.");  
+    }  
+});   
 
 // Обработка других сообщений  
 bot.on("message", (ctx) => {  
