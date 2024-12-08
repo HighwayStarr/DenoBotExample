@@ -69,8 +69,7 @@ bot.on("message", async (ctx) => {
         
         if (ctx.message.text.toLowerCase() === "да") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу!`);  
-            await bot.api.sendMessage(userId, `Пользователь ${otherUserId} согласен на встречу!`);  
-            await ctx.reply("Отлично! Договоритесь о времени и месте с другим пользователем.");  
+            await bot.api.sendMessage(userId, `Пользователь ${otherUserId} согласен на встречу! Договоритесь с ним о точном времени и месте.`);  
 
             // Запрос на оценку встречи для обоих пользователей  
             await assessment(userId);  
