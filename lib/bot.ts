@@ -119,7 +119,7 @@ async function findMatches(userId: string) {
 }  
 
 // Обработка текстовых сообщений  
-bot.on("message:text", async (ctx) => {  
+bot.on("messahe", async (ctx) => {  
     const userId = ctx.from.id.toString();  
     const state = userState[userId];
     //const otherUserId = state?.otherUserId;
