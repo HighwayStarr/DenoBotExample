@@ -40,59 +40,47 @@ async function assessment(userId: string) {
     bot.on("message:text", listener);  
 }  
 
-// Команда для запуска  
 bot.command("start", (ctx) => {  
     ctx.reply("Добро пожаловать! Чтобы начать регистрацию, введите /register.");  
 });  
+ 
+bot.command("register", (ctx) => {  
+    const userId = ctx.from.id.toString();  
+    userState[userId] = {
+        hobby : '',
+        place : '',
+        cafe : '',
+        time: '',
+    };  
+    ctx.reply("О чем бы вы хотели пообщаться? Напишите свои интересы через запятую.");  
+});  
 
-// Обработка сообщений  
+// Сбор информации от пользователя  
 bot.on("message", async (ctx) => {  
     const userId = ctx.from.id.toString();  
 
-    // Инициализация userState для пользователя, если она ещё не создана  
-    if (!userState[userId]) {  
-        userState[userId] = { hobby: '', place: '', cafe: '', time: '', meetNumber: 0, grade: [] };  
-    }  
-
-    // Если хобби ещё не сохранено, спрашиваем о нём  
-    if (!userState[userId].hobby) {  
-        userState[userId].hobby = ctx.message.text; // Сохраняем введенное хобби  
+    if (users[userId]?.hobby === '') {  
+        userState[userId].hobby = ctx.message.text;  
         await ctx.reply("В каком районе вам было бы удобно встречаться?");  
-    }  
-    // Если место ещё не сохранено, спрашиваем о нём  
-    else if (!userState[userId].place) {  
-        userState[userId].place = ctx.message.text; // Сохраняем введенное место  
+    } else if (userState[userId]?.place === '') {  
+        userState[userId].place = ctx.message.text;  
         await ctx.reply("Какую кофейню вы предпочитаете? Напишите её название.");  
-    }  
-    // Если кафе ещё не сохранено, спрашиваем о нём  
-    else if (!userState[userId].cafe) {  
-        userState[userId].cafe = ctx.message.text; // Сохраняем введенное кафе  
+    } else if (userState[userId]?.cafe === '') {  
+        userState[userId].cafe = ctx.message.text;  
         await ctx.reply("Во сколько вам удобнее встречаться? Напишите время.");  
-    }  
-    // Если время ещё не сохранено, спрашиваем о нём  
-    else if (!userState[userId].time) {  
-        userState[userId].time = ctx.message.text; // Сохраняем введенное время  
+    } else if (userState[userId]?.time === '') {  
+        userState[userId].time = ctx.message.text;  
 
-        // Сохраняем информацию о пользователе в основном массиве  
-        users[userId] = {  
-            hobby: userState[userId].hobby,  
-            place: userState[userId].place,  
-            cafe: userState[userId].cafe,  
-            time: userState[userId].time,  
-            meetNumber: 0,  
-            grade: []  
+        // Сохраняем информацию о пользователе  
+        users[userId] = {   
+            hobby: userState[userId].hobby,   
+            place: userState[userId].place,   
+            cafe: userState[userId].cafe,   
+            time: userState[userId].time   
         };  
 
         // Подтверждение данных  
         await ctx.reply(`Спасибо за регистрацию! Вот ваши данные:\n- Интересы: ${users[userId].hobby}\n- Район: ${users[userId].place}\n- Кафе: ${users[userId].cafe}\n- Время: ${users[userId].time}`);  
-        
-        // Очистка состояния после завершения  
-        delete userState[userId];  
-    }   
-    // Если все данные собраны, уведомляем пользователя  
-    else {  
-        await ctx.reply("Все данные уже собраны. Если хотите начать регистрацию заново, напишите /register.");  
-    }  
 
     await findMatches(userId);  
 });  
