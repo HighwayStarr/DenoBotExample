@@ -43,14 +43,16 @@ async function assessment(userId: string) {
 bot.command("start", (ctx) => {  
     ctx.reply("Добро пожаловать! Чтобы начать регистрацию, введите /register.");  
 });  
- 
+
 bot.command("register", (ctx) => {  
     const userId = ctx.from.id.toString();  
-    userState[userId] = {
-        hobby : '',
-        place : '',
-        cafe : '',
-        time: '',
+    userState[userId] = {  
+        hobby: '',  
+        place: '',  
+        cafe: '',  
+        time: '',  
+        meetNumber: 0,  
+        grade: []  
     };  
     ctx.reply("О чем бы вы хотели пообщаться? Напишите свои интересы через запятую.");  
 });  
@@ -59,7 +61,7 @@ bot.command("register", (ctx) => {
 bot.on("message", async (ctx) => {  
     const userId = ctx.from.id.toString();  
 
-    if (users[userId]?.hobby === '') {  
+    if (userState[userId]?.hobby === '') {  
         userState[userId].hobby = ctx.message.text;  
         await ctx.reply("В каком районе вам было бы удобно встречаться?");  
     } else if (userState[userId]?.place === '') {  
@@ -72,17 +74,21 @@ bot.on("message", async (ctx) => {
         userState[userId].time = ctx.message.text;  
 
         // Сохраняем информацию о пользователе  
-        users[userId] = {   
-            hobby: userState[userId].hobby,   
-            place: userState[userId].place,   
-            cafe: userState[userId].cafe,   
-            time: userState[userId].time   
+        users[userId] = {  
+            hobby: userState[userId].hobby,  
+            place: userState[userId].place,  
+            cafe: userState[userId].cafe,  
+            time: userState[userId].time,  
+            meetNumber: 0,  
+            grade: []  
         };  
 
         // Подтверждение данных  
         await ctx.reply(`Спасибо за регистрацию! Вот ваши данные:\n- Интересы: ${users[userId].hobby}\n- Район: ${users[userId].place}\n- Кафе: ${users[userId].cafe}\n- Время: ${users[userId].time}`);  
 
-    await findMatches(userId);  
+        // Ищем совпадения после регистрации  
+        await findMatches(userId);  
+    }  
 });  
 
 // Функция для поиска совпадений  
@@ -91,7 +97,7 @@ async function findMatches(userId: string) {
     for (const [otherUserId, otherUser] of Object.entries(users)) {  
         if (otherUserId !== userId) {  
             // Проверяем совпадения по интересам, месту, кафе и времени  
-            const isMatch = user.hobby.split(',').some(hobby => otherUser.hobby.includes(hobby.trim())) &&  
+            const isMatch = user.hobby.split(',').some 
                             user.place === otherUser.place &&  
                             user.cafe === otherUser.cafe &&  
                             user.time === otherUser.time;  
