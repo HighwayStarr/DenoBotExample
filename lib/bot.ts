@@ -78,25 +78,7 @@ bot.on("message", async (ctx) => {
             await ctx.reply("Хорошо, если вы передумаете, просто дайте знать!");  
         } else {  
             await ctx.reply('Пожалуйста, ответьте "Да" или "Нет".');  
-        }  
-    } else if (state?.waitingForResponse) {  
-        // Обработка оценки, если пользователь находится в состоянии ожидания  
-        const answer = parseInt(ctx.message.text);  
-        if (!isNaN(answer) && answer >= 1 && answer <= 10) {  
-            state.grade.push(answer);  
-            await bot.api.sendMessage(userId, `Спасибо за вашу оценку: ${answer}`);  
-            state.waitingForResponse = false; // Завершаем ожидание ответа для этого пользователя  
-
-            // Проверяем, оценил ли другой пользователь  
-            const otherUserId = state.otherUserId!;  
-            const otherState = userState[otherUserId];  
-            if (otherState?.waitingForResponse) {  
-                await bot.api.sendMessage(otherUserId, `Пользователь ${userId} оценил встречу: ${answer}`);  
-                otherState.waitingForResponse = false; // Завершаем ожидание ответа для другого пользователя  
-            }  
-        } else {  
-            await ctx.reply('Пожалуйста, введите число от 1 до 10.');  
-        }  
+        }    
     } else {  
         ctx.reply("Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.");  
     }  
