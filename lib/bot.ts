@@ -81,8 +81,11 @@ bot.on("message", async (ctx) => {
             await ctx.reply('Пожалуйста, ответьте "Да" или "Нет".');  
         }  
     } else if (state?.waitingForResponse) {  
-        // Обработка оценки, если пользователь находится в состоянии ожидания  
+    // Проверяем, что это оценка встречи  
+    if (state.otherUserId) {  
         const answer = parseInt(ctx.message.text);  
+        
+        // Если введено валидное число от 1 до 10  
         if (!isNaN(answer) && answer >= 1 && answer <= 10) {  
             state.grade.push(answer);  
             await bot.api.sendMessage(userId, `Спасибо за вашу оценку: ${answer}`);  
@@ -99,7 +102,7 @@ bot.on("message", async (ctx) => {
             await ctx.reply('Пожалуйста, введите число от 1 до 10.');  
         }  
     } else {  
-        ctx.reply("Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.");  
+        await ctx.reply('Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.');  
     }  
 });  
 
