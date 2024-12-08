@@ -10,7 +10,7 @@ const users: { [userId: string]: { hobby: string; place: string; cafe: string; t
 async function assessment(state: { meetNumber: number; grade: Array<number>; }, userId: string) {  
     await bot.api.sendMessage(userId, 'Оцените встречу от 1 до 10');  
 
-    bot.on('message:text', async (ctx) => {  
+    bot.on('message', async (ctx) => {  
         const answer = parseInt(ctx.message.text);  
 
         if (!isNaN(answer) && answer >= 1 && answer <= 10) {  
@@ -78,8 +78,8 @@ bot.on("message", async (ctx) => {
         const otherUserId = state.otherUserId!;  
         
         if (ctx.message.text.toLowerCase() === "да") {  
-            await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу! Договоритесь о времени и месте.`);  
-            await bot.api.sendMessage(userId, `Пользователь ${otherUserId} согласен на встречу! Договоритесь о времени и месте.`);  
+            await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу!`);  
+            await bot.api.sendMessage(userId, `Пользователь ${otherUserId} согласен на встречу!`);  
             await ctx.reply("Отлично! Договоритесь о времени и месте с другим пользователем.");  
             await assessment(state, userId);  
            await assessment(userState[otherUserId], otherUserId);  
