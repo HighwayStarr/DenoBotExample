@@ -104,7 +104,7 @@ bot.on("message", async (ctx) => {
     } else {  
         await ctx.reply('Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.');  
     }  
-});  
+};  
 
 // Функция для поиска совпадений  
 async function findMatches(userId: string) {  
