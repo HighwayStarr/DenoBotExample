@@ -1,7 +1,7 @@
 import { Bot } from "https://deno.land/x/grammy@v1.32.0/mod.ts";  
 
 // Создайте экземпляр класса `Bot` и передайте ему токен вашего бота.  
-export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU"); // Убедитесь, что токен установлен  
+export const bot = new Bot(Deno.env.get("BOT_TOKEN") || ""); // Убедитесь, что токен установлен  
 
 // Состояние пользователя  
 const userState: { [userId: string]: { hobby: string; place: string; cafe: string; time: string; meetNumber: number; grade: Array<number>; waitingForResponse?: boolean; otherUserId?: string; } } = {};  
@@ -74,18 +74,15 @@ bot.on("message", async (ctx) => {
             // Запрос на оценку встречи для обоих пользователей  
             await assessment(userId);  
             await assessment(otherUserId);  
-        } else if (ctx.message.text.toLowerCase() === "нет") {  
-                        await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
+                } else if (ctx.message.text.toLowerCase() === "нет") {  
+            await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
             await ctx.reply("Хорошо, если вы передумаете, просто дайте знать!");  
         } else {  
             await ctx.reply('Пожалуйста, ответьте "Да" или "Нет".');  
         }  
     } else if (state?.waitingForResponse) {  
-    // Проверяем, что это оценка встречи  
-    if (state.otherUserId) {  
+        // Обработка оценки, если пользователь находится в состоянии ожидания  
         const answer = parseInt(ctx.message.text);  
-        
-        // Если введено валидное число от 1 до 10  
         if (!isNaN(answer) && answer >= 1 && answer <= 10) {  
             state.grade.push(answer);  
             await bot.api.sendMessage(userId, `Спасибо за вашу оценку: ${answer}`);  
@@ -102,9 +99,9 @@ bot.on("message", async (ctx) => {
             await ctx.reply('Пожалуйста, введите число от 1 до 10.');  
         }  
     } else {  
-        await ctx.reply('Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.');  
+        ctx.reply("Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.");  
     }  
-};  
+});  
 
 // Функция для поиска совпадений  
 async function findMatches(userId: string) {  
