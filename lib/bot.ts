@@ -8,7 +8,7 @@ const userState: { [userId: string]: { hobby: string; place: string; cafe: strin
 const users: { [userId: string]: { hobby: string; place: string; cafe: string; time: string; meetNumber: number; grade: Array<number>; } } = {}; // Хранение всех зарегистрированных пользователей  
 
 async function assessment(state: { meetNumber: number; grade: Array<number>; }, userId: string) {  
-    await bot.api.sendMessage(userId, 'Оцените встречу от 1 до 10');  
+    await bot.api.sendMessage(userId, 'После встречи, оцените её от 1 до 10');  
 
     bot.on('message', async (ctx) => {  
         const answer = parseInt(ctx.message.text);  
