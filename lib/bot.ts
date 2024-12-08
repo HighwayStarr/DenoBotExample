@@ -40,6 +40,7 @@ async function assessment(userId: string) {
     bot.on("message:text", listener);  
 }  
 
+// Команды для регистрации  
 bot.command("start", (ctx) => {  
     ctx.reply("Добро пожаловать! Чтобы начать регистрацию, введите /register.");  
 });  
@@ -141,28 +142,24 @@ bot.on("message:text", async (ctx) => {
         const otherUserId = state.otherUserId!;  
 
         if (ctx.message.text.toLowerCase() === "да") {  
-            await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу! Договоритесь о времени и месте.`);  
-            await bot.api.sendMessage(userId, `Пользователь ${otherUserId} согласен на встречу! Договоритесь о времени и месте.`);  
+            await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу!`);  
+            await bot.api.sendMessage(userId, `Пользователь ${otherUserId} согласен на встречу!`);  
 
-            await ctx.reply("Отлично! Договоритесь о времени и месте с другим пользователем.");  
+            await ctx.reply("Отлично! Теперь вы можете договориться о времени и месте встречи.");  
             // После встречи запрашиваем оценки  
             await assessment(userId);  
             await assessment(otherUserId);  
 
             // Сбрасываем состояние ожидания  
-            userState[userId].waitingForResponse = false;  
-            userState[userId].otherUserId = undefined;  
-            userState[otherUserId].waitingForResponse = false;  
-            userState[otherUserId].otherUserId = undefined;  
+            resetUserState(userId);  
+            resetUserState(otherUserId);  
         } else if (ctx.message.text.toLowerCase() === "нет") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
             await ctx.reply("Хорошо, если вы передумаете, просто дайте знать!");  
 
             // Сбрасываем состояние ожидания  
-            userState[userId].waitingForResponse = false;  
-            userState[userId].otherUserId = undefined;  
-            userState[otherUserId].waitingForResponse = false;  
-            userState[otherUserId].otherUserId = undefined;  
+            resetUserState(userId);  
+            resetUserState(otherUserId);  
         } else {  
             await ctx.reply('Пожалуйста, ответьте "Да" или "Нет".');  
         }  
@@ -171,6 +168,12 @@ bot.on("message:text", async (ctx) => {
         await ctx.reply("Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.");  
     }  
 });  
+
+// Функция для сброса состояния пользователя  
+function resetUserState(userId: string) {  
+    userState[userId].waitingForResponse = false;  
+    userState[userId].otherUserId = undefined;  
+}  
 
 // Запуск бота  
 await bot.start();
