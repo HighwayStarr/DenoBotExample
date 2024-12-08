@@ -8,8 +8,8 @@ const userState: { [userId: string]: { hobby: string; place: string; cafe: strin
 const users: { [userId: string]: { hobby: string; place: string; cafe: string; time: string; meetNumber: number; grade: Array<number>; } } = {}; // Хранение всех зарегистрированных пользователей  
 
 // Функция для оценки встречи  
-async function assessment(userId: string) {  
-    await bot.api.sendMessage(userId, 'После встречи, оцените её от 1 до 10');  
+function assessment(userId: string) {  
+    bot.api.sendMessage(userId, 'После встречи, оцените её от 1 до 10');  
     userState[userId].waitingForResponse = true; // Устанавливаем состояние ожидания оценки  
 }  
 
@@ -70,10 +70,9 @@ bot.on("message", async (ctx) => {
         if (ctx.message.text.toLowerCase() === "да") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу!`);  
             await bot.api.sendMessage(userId, `Пользователь ${otherUserId} согласен на встречу! Договоритесь с ним о точном времени и месте.`);  
-
-            // Запрос на оценку встречи для обоих пользователей  
-            await assessment(userId);  
-            await assessment(otherUserId);  
+             // Запрос на оценку встречи для обоих пользователей  
+            assessment(userId);  
+            assessment(otherUserId);  
                 } else if (ctx.message.text.toLowerCase() === "нет") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
             await ctx.reply("Хорошо, если вы передумаете, просто дайте знать!");  
