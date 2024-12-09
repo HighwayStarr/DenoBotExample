@@ -8,17 +8,9 @@ const userState: { [userId: string]: { hobby: string; place: string; cafe: strin
 const users: { [userId: string]: { hobby: string; place: string; cafe: string; time: string; meetNumber: number; grade: Array<number>; } } = {}; // Хранение всех зарегистрированных пользователей  
 
 // Функция для оценки встречи  
-function assessment(userId: string, users: { [userId: string]: { hobby: string; place: string; cafe: string; time: string; meetNumber: number; grade: Array<number>; waitingForResponse?: boolean; otherUserId?: string; } }) {  
-    bot.api.sendMessage(userId, 'оцените встречу от 1 до 10');  
+async function assessment(userId: string) {  
+    await bot.api.sendMessage(userId, 'После встречи, оцените её от 1 до 10');  
     userState[userId].waitingForResponse = true; // Устанавливаем состояние ожидания оценки  
-    const answer = parseInt(ctx.message.text);  
-    if (!isNaN(answer) && answer >= 1 && answer <= 10) {  
-        users[userId].grade.push(answer);  
-        users[userId].meetNumber++
-        await bot.api.sendMessage(userId, `Спасибо за вашу оценку: ${answer}`);  
-        users[userId].waitingForResponse = false; // Завершаем ожидание ответа для этого пользователя  
-        
-
 }  
 
 // Команды для регистрации  
@@ -78,21 +70,29 @@ bot.on("message", async (ctx) => {
         if (ctx.message.text.toLowerCase() === "да") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу!`);  
             await bot.api.sendMessage(userId, `Пользователь ${otherUserId} согласен на встречу! Договоритесь с ним о точном времени и месте.`);  
-             // Запрос на оценку встречи для обоих пользователей  
-            assessment(userId, users);  
-                } else if (ctx.message.text.toLowerCase() === "нет") {  
-            await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
+            
+            // Запрос на оценку встречи для обоих пользователей  
+            await assessment(userId);  
+            await assessment(otherUserId);  
+        } else if (ctx.message.text.toLowerCase() === "нет") {  
+                        await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
             await ctx.reply("Хорошо, если вы передумаете, просто дайте знать!");  
         } else {  
             await ctx.reply('Пожалуйста, ответьте "Да" или "Нет".');  
         }  
     } else if (state?.waitingForResponse) {  
-        // Обработка оценки, если пользователь находится в состоянии ожидания  
-       
-            if (otherState?.waitingForResponse) {  
-                await bot.api.sendMessage(otherUserId, `Пользователь ${userId} оценил встречу: ${answer}`);  
-                otherState.waitingForResponse = false; // Завершаем ожидание ответа для другого пользователя  
-            }  
+        // Здесь состояние ожидания ответа для оценки встречи  
+        const otherUserId = state.otherUserId;  
+        const answer = parseInt(ctx.message.text);  
+        if (!isNaN(answer) && answer >= 1 && answer <= 10) {  
+            users[userId].grade.push(answer);  
+            users[userId].meetNumber++;  
+            await bot.api.sendMessage(userId, `Спасибо за вашу оценку: ${answer}`);  
+            state.waitingForResponse = false; // Завершаем ожидание ответа для этого пользователя  
+            
+            // Уведомление другого пользователя об оценке  
+            await bot.api.sendMessage(otherUserId, `Пользователь ${userId} оценил встречу: ${answer}`);  
+            userState[otherUserId].waitingForResponse = false; // Завершаем ожидание для другого пользователя  
         } else {  
             await ctx.reply('Пожалуйста, введите число от 1 до 10.');  
         }  
