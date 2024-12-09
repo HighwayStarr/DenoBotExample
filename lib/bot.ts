@@ -63,7 +63,7 @@ bot.on("message", async (ctx) => {
         
         if (ctx.message.text.toLowerCase() === "да") {  
             state.agreed = true; // Устанавливаем согласие текущего пользователя  
-            await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу!`);  
+            await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу! Договоритесь о точном времени и месте.`);  
             
             // Проверяем, согласен ли другой пользователь  
             if (userState[otherUserId]?.agreed) {  
