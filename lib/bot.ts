@@ -8,8 +8,8 @@ const userState: { [userId: string]: { hobby: string; place: string; cafe: strin
 const users: { [userId: string]: { hobby: string; place: string; cafe: string; time: string; meetNumber: number; grade: Array<number>; } } = {}; // Хранение всех зарегистрированных пользователей  
 
 // Функция для оценки встречи  
-async function assessment(userId: string) {  
-    await bot.api.sendMessage(userId, 'После встречи, оцените её от 1 до 10');  
+function assessment(userId: string) {  
+    bot.api.sendMessage(userId, 'После встречи, оцените её от 1 до 10');  
     userState[userId].waitingForResponse = true; // Устанавливаем состояние ожидания оценки  
 }  
 
@@ -70,37 +70,18 @@ bot.on("message", async (ctx) => {
         if (ctx.message.text.toLowerCase() === "да") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу!`);  
             await bot.api.sendMessage(userId, `Пользователь ${otherUserId} согласен на встречу! Договоритесь с ним о точном времени и месте.`);  
-            
-            // Запрос на оценку встречи для обоих пользователей  
-            await assessment(userId);  
-            await assessment(otherUserId);  
-        } else if (ctx.message.text.toLowerCase() === "нет") {  
-                        await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
+             // Запрос на оценку встречи для обоих пользователей  
+            assessment(userId);  
+            assessment(otherUserId);  
+                } else if (ctx.message.text.toLowerCase() === "нет") {  
+            await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
             await ctx.reply("Хорошо, если вы передумаете, просто дайте знать!");  
         } else {  
             await ctx.reply('Пожалуйста, ответьте "Да" или "Нет".');  
-        }  
-    } else if (state?.waitingForResponse) {  
-    const otherUserId = state.otherUserId;  
-    const answer = parseInt(ctx.message.text);  
-    if (!isNaN(answer) && answer >= 1 && answer <= 10) {  
-        users[userId].grade.push(answer);  
-        users[userId].meetNumber++;  
-        await bot.api.sendMessage(userId, `Спасибо за вашу оценку: ${answer}`);  
-        
-        // Уведомление другого пользователя об оценке  
-        await bot.api.sendMessage(otherUserId, `Пользователь ${userId} оценил встречу: ${answer}`);  
-        
-        // Завершаем ожидание для обоих пользователей  
-        state.waitingForResponse = false;  
-        userState[otherUserId].waitingForResponse = false;  
-        
-        // Дополнительное сообщение для другого пользователя, если это необходимо  
-        await bot.api.sendMessage(userId, "Вы завершили оценку встречи.");  
-        
+        }    
     } else {  
-        await ctx.reply('Пожалуйста, введите число от 1 до 10.');  
-    }    
+        ctx.reply("Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.");  
+    }  
 });  
 
 // Функция для поиска совпадений  
