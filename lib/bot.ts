@@ -5,13 +5,7 @@ export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejT
 
 // Состояние пользователя  
 const userState: { [userId: string]: { hobby: string; place: string; cafe: string; time: string; meetNumber: number; grade: Array<number>; waitingForResponse?: boolean; otherUserId?: string; } } = {};  
-const users: { [userId: string]: { hobby: string; place: string; cafe: string; time: string; meetNumber: number; grade: Array<number>; } } = {}; // Хранение всех зарегистрированных пользователей  
-
-// Функция для оценки встречи  
-function assessment(userId: string) {  
-    bot.api.sendMessage(userId, 'После встречи, оцените её от 1 до 10');  
-    userState[userId].waitingForResponse = true; // Устанавливаем состояние ожидания оценки  
-}  
+const users: { [userId: string]: { hobby: string; place: string; cafe: string; time: string; meetNumber: number; grade: Array<number>; } } = {}; // Хранение всех зарегистрированных пользователей   
 
 // Команды для регистрации  
 bot.command("start", (ctx) => {  
