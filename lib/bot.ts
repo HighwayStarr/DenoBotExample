@@ -81,24 +81,26 @@ bot.on("message", async (ctx) => {
             await ctx.reply('Пожалуйста, ответьте "Да" или "Нет".');  
         }  
     } else if (state?.waitingForResponse) {  
-        // Здесь состояние ожидания ответа для оценки встречи  
-        const otherUserId = state.otherUserId;  
-        const answer = parseInt(ctx.message.text);  
-        if (!isNaN(answer) && answer >= 1 && answer <= 10) {  
-            users[userId].grade.push(answer);  
-            users[userId].meetNumber++;  
-            await bot.api.sendMessage(userId, `Спасибо за вашу оценку: ${answer}`);  
-            state.waitingForResponse = false; // Завершаем ожидание ответа для этого пользователя  
-            
-            // Уведомление другого пользователя об оценке  
-            await bot.api.sendMessage(otherUserId, `Пользователь ${userId} оценил встречу: ${answer}`);  
-            userState[otherUserId].waitingForResponse = false; // Завершаем ожидание для другого пользователя  
-        } else {  
-            await ctx.reply('Пожалуйста, введите число от 1 до 10.');  
-        }  
+    const otherUserId = state.otherUserId;  
+    const answer = parseInt(ctx.message.text);  
+    if (!isNaN(answer) && answer >= 1 && answer <= 10) {  
+        users[userId].grade.push(answer);  
+        users[userId].meetNumber++;  
+        await bot.api.sendMessage(userId, `Спасибо за вашу оценку: ${answer}`);  
+        
+        // Уведомление другого пользователя об оценке  
+        await bot.api.sendMessage(otherUserId, `Пользователь ${userId} оценил встречу: ${answer}`);  
+        
+        // Завершаем ожидание для обоих пользователей  
+        state.waitingForResponse = false;  
+        userState[otherUserId].waitingForResponse = false;  
+        
+        // Дополнительное сообщение для другого пользователя, если это необходимо  
+        await bot.api.sendMessage(userId, "Вы завершили оценку встречи.");  
+        
     } else {  
-        ctx.reply("Я не знаю, как на это ответить. Пожалуйста, используйте команду /register для начала.");  
-    }  
+        await ctx.reply('Пожалуйста, введите число от 1 до 10.');  
+    }    
 });  
 
 // Функция для поиска совпадений  
