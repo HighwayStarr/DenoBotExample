@@ -4,7 +4,7 @@ import { Bot } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "8142066967:AAE8p2Zn4ejTvzoPb1HPjlYV6ZuCrECFmVU"); // Убедитесь, что токен установлен  
 
 // Состояние пользователя  
-const userState: { [userId: string]: { hobby: string; place: string; cafe: string; time: string; meetNumber: number; grade: Array<number>; waitingForResponse?: boolean; otherUserId?: string; } } = {};  
+const userState: { [userId: string]: { hobby: string; place: string; cafe: string; time: string; meetNumber: number; grade: Array<number>; waitingForResponse?: boolean; otherUserId?: string; agreed?: boolean; } } = {};  
 const users: { [userId: string]: { hobby: string; place: string; cafe: string; time: string; meetNumber: number; grade: Array<number>; } } = {}; // Хранение всех зарегистрированных пользователей   
 
 // Команды для регистрации  
@@ -62,14 +62,26 @@ bot.on("message", async (ctx) => {
         const otherUserId = state.otherUserId!;  
         
         if (ctx.message.text.toLowerCase() === "да") {  
+            state.agreed = true; // Устанавливаем согласие текущего пользователя  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} согласен на встречу!`);  
-            await bot.api.sendMessage(userId, `Пользователь ${otherUserId} согласен на встречу! Договоритесь с ним о точном времени и месте.`);  
-             // Запрос на оценку встречи для обоих пользователей  
-            assessment(userId);  
-            assessment(otherUserId);  
-                } else if (ctx.message.text.toLowerCase() === "нет") {  
+            
+            // Проверяем, согласен ли другой пользователь  
+            if (userState[otherUserId]?.agreed) {  
+                await bot.api.sendMessage(userId, `Пользователь ${otherUserId} согласен на встречу! Договоритесь о точном времени и месте.`);  
+                // Сбрасываем состояние ожидания  
+                userState[userId].waitingForResponse = false;  
+                userState[otherUserId].waitingForResponse = false;  
+                userState[userId].agreed = false; // Сбрасываем согласие  
+                userState[otherUserId].agreed = false; // Сбрасываем согласие  
+            } else {  
+                await bot.api.sendMessage(userId, `Пользователь ${otherUserId} еще не ответил.`);  
+            }  
+        } else if (ctx.message.text.toLowerCase() === "нет") {  
             await bot.api.sendMessage(otherUserId, `Пользователь ${userId} не заинтересован в встрече.`);  
             await ctx.reply("Хорошо, если вы передумаете, просто дайте знать!");  
+            // Сбрасываем состояние ожидания  
+            userState[userId].waitingForResponse = false;  
+            userState[otherUserId].waitingForResponse = false;  
         } else {  
             await ctx.reply('Пожалуйста, ответьте "Да" или "Нет".');  
         }    
@@ -84,7 +96,7 @@ async function findMatches(userId: string) {
     for (const [otherUserId, otherUser] of Object.entries(users)) {  
         if (otherUserId !== userId) {  
             // Проверяем совпадения по интересам, месту, кафе и времени  
-            const isMatch = user.hobby.split(',').some(hobby => otherUser.hobby.includes(hobby.trim())) &&  
+                        const isMatch = user.hobby.split(',').some(hobby => otherUser.hobby.includes(hobby.trim())) &&  
                             user.place === otherUser.place &&  
                             user.cafe === otherUser.cafe &&  
                             user.time === otherUser.time;  
